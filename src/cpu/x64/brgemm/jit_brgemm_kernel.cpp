@@ -2141,8 +2141,11 @@ void jit_brgemm_kernel_t<isa, Wmm>::gemm_microkernel(int bd_block2,
                             vcvtneeph2ps(vmm_load, addr);
                         else
                             vcvtneoph2ps(vmm_load, addr);
-                    } else
+                    } else if (brg.isa_impl == avx512_core_fp16) {
                         vcvtph2psx(vmm_load, addr);
+                    } else {
+                        vcvtph2ps(vmm_load, addr);
+                    }
                 } else if (brg.dt_b == data_type::bf16
                         && brg.isa_impl == avx2_vnni_2) {
                     if (rd % 2 == 0)
@@ -2418,8 +2421,10 @@ void jit_brgemm_kernel_t<isa, Wmm>::gemm_microkernel(int bd_block2,
                             vcvtneeph2ps(vmm_load, addr);
                         else
                             vcvtneoph2ps(vmm_load, addr);
-                    } else {
+                    }  if (brg.isa_impl == avx512_core_fp16) {
                         vcvtph2psx(vmm_load, addr);
+                    } else {
+                        vcvtph2ps(vmm_load, addr);
                     }
                 } else if (brg.dt_b == data_type::bf16
                         && brg.isa_impl == avx2_vnni_2) {

@@ -135,6 +135,11 @@ void set_isa_impl(brgemm_t *brg) {
                     is_isa_ok(avx512_core_amx_fp16), avx512_core_amx_fp16,
                     is_isa_ok(avx512_core_fp16), avx512_core_fp16,
                     is_isa_ok(avx2_vnni_2), avx2_vnni_2);
+        } else if (data_type::f32 == brg->dt_a && data_type::f16 == brg->dt_b) {
+            // vcvtph2ps available on AVX2(F16C) / AVX512F
+            brg->isa_impl = utils::map(true, isa_undef,
+                    is_isa_ok(avx512_core), avx512_core,
+                    is_isa_ok(avx2), avx2);
         } else {
             brg->isa_impl = utils::map(true, isa_undef,
                     is_isa_ok(avx512_core_fp16), avx512_core_fp16);
@@ -857,8 +862,10 @@ void init_brgemm_conf(brgemm_t *brg, cpu_isa_t isa, brgemm_batch_kind_t type,
     brg->bdb2 = 0;
     brg->bdb2_tail = 0;
 
+    const bool is_vcvtph2ps_kernel = (brg->dt_b == data_type::f16 && brg->dt_a == data_type::f32);
     const bool is_b_in_vnni_format = !(brg->dt_b == data_type::f16 && brg->isa_impl == avx512_core_fp16) &&
-                                     !(one_of(brg->dt_a, data_type::f32, data_type::bf16) && one_of(brg->dt_b, data_type::u8));
+                                     !(one_of(brg->dt_a, data_type::f32, data_type::bf16) && one_of(brg->dt_b, data_type::u8)) &&
+                                     !is_vcvtph2ps_kernel;
     brg->ld_step
             = is_b_in_vnni_format ? data_type_vnni_granularity(brg->dt_b) : 1;
 
@@ -867,7 +874,7 @@ void init_brgemm_conf(brgemm_t *brg, cpu_isa_t isa, brgemm_batch_kind_t type,
                       && one_of(brg->isa_impl, avx2_vnni_2, avx512_core_fp16))
             || (brg->is_bf16 && brg->isa_impl == avx2_vnni_2)
             || (one_of(brg->dt_a, data_type::f32, data_type::bf16) &&
-                one_of(brg->dt_b, data_type::u8, data_type::nf4, data_type::s4, data_type::u4));
+                one_of(brg->dt_b, data_type::u8, data_type::nf4, data_type::s4, data_type::u4, data_type::f16));
     brg->rd_step = has_no_vnni_compute_instruction
             ? 1
             : data_type_vnni_granularity(brg->dt_b);

@@ -123,6 +123,10 @@ void jit_brgemm_weights_decompression_kernel_t<isa>::load_weights(Vmm vmm_load, 
             }
             break;
         }
+        case data_type::f16: {
+            vcvtph2ps(vmm_load, addr);
+            break;
+        }
         default: assert(!"unsupported data type");
     }
 }

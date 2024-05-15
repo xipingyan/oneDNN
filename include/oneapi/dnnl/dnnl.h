@@ -2404,7 +2404,8 @@ dnnl_status_t DNNL_API dnnl_primitive_attr_get_rnn_weights_projection_qparams(
 
 dnnl_status_t DNNL_API dnnl_primitive_attr_set_src_dyn_quant_params(
         dnnl_primitive_attr_t attr, uint64_t group_size);
-
+dnnl_status_t DNNL_API  dnnl_primitive_attr_get_src_dyn_quant_params(
+        dnnl_primitive_attr_t attr, uint64_t* group_size);
 /// @} dnnl_api_attributes
 
 /// @addtogroup dnnl_api_rnn

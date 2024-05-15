@@ -52,9 +52,9 @@ void init_kernel_datatype(
     brg->is_int8 = utils::one_of(dt_a, data_type::u8, data_type::s8)
             && utils::one_of(dt_b, data_type::u8, data_type::s8, data_type::u4);
     brg->is_bf16 = one_of(dt_a, data_type::bf16) &&
-                   one_of(dt_b, data_type::bf16, data_type::u8, data_type::nf4, data_type::s4, data_type::u4);
+                   one_of(dt_b, data_type::bf16, data_type::u8, data_type::s8, data_type::nf4, data_type::s4, data_type::u4);
     brg->is_f32 = one_of(dt_a, data_type::f32) &&
-                  one_of(dt_b, data_type::f32, data_type::u8, data_type::nf4, data_type::s4, data_type::u4);
+                  one_of(dt_b, data_type::f32, data_type::u8, data_type::s8, data_type::nf4, data_type::s4, data_type::u4);
     brg->is_f16 = utils::one_of(data_type::f16, dt_a, dt_b);
     assert(brg->is_int8 || brg->is_bf16 || brg->is_f32 || brg->is_f16);
 }
@@ -864,7 +864,7 @@ void init_brgemm_conf(brgemm_t *brg, cpu_isa_t isa, brgemm_batch_kind_t type,
 
     const bool is_vcvtph2ps_kernel = (brg->dt_b == data_type::f16 && brg->dt_a == data_type::f32);
     const bool is_b_in_vnni_format = !(brg->dt_b == data_type::f16 && brg->isa_impl == avx512_core_fp16) &&
-                                     !(one_of(brg->dt_a, data_type::f32, data_type::bf16) && one_of(brg->dt_b, data_type::u8)) &&
+                                     !(one_of(brg->dt_a, data_type::f32, data_type::bf16) && one_of(brg->dt_b, data_type::u8, data_type::s8)) &&
                                      !is_vcvtph2ps_kernel;
     brg->ld_step
             = is_b_in_vnni_format ? data_type_vnni_granularity(brg->dt_b) : 1;
@@ -874,7 +874,7 @@ void init_brgemm_conf(brgemm_t *brg, cpu_isa_t isa, brgemm_batch_kind_t type,
                       && one_of(brg->isa_impl, avx2_vnni_2, avx512_core_fp16))
             || (brg->is_bf16 && brg->isa_impl == avx2_vnni_2)
             || (one_of(brg->dt_a, data_type::f32, data_type::bf16) &&
-                one_of(brg->dt_b, data_type::u8, data_type::nf4, data_type::s4, data_type::u4, data_type::f16));
+                one_of(brg->dt_b, data_type::u8, data_type::s8, data_type::nf4, data_type::s4, data_type::u4, data_type::f16));
     brg->rd_step = has_no_vnni_compute_instruction
             ? 1
             : data_type_vnni_granularity(brg->dt_b);

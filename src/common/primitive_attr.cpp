@@ -899,6 +899,14 @@ status_t dnnl_primitive_attr_set_src_dyn_quant_params(
     return attr->src_dyn_quant_params_.set(group_size);
 }
 
+status_t dnnl_primitive_attr_get_src_dyn_quant_params(
+        primitive_attr_t *attr, uint64_t* group_size) {
+    if (attr == nullptr) return invalid_arguments;
+
+    if (group_size) *group_size = attr->src_dyn_quant_params_.get();
+    return success;
+}
+
 template struct dnnl::impl::shifts_t<uint8_t>;
 template struct dnnl::impl::shifts_t<int32_t>;
 template struct dnnl::impl::shifts_t<float>;

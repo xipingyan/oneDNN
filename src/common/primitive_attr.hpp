@@ -497,6 +497,10 @@ struct src_dyn_quant_params_t : public c_compatible {
         return status::success;
     }
 
+    uint64_t get() {
+        return group_size_;
+    }
+
     bool operator==(const src_dyn_quant_params_t &rhs) const {
         using namespace utils;
         return group_size_ == rhs.group_size_;

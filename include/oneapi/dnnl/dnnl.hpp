@@ -4176,6 +4176,11 @@ struct primitive_attr : public handle<dnnl_primitive_attr_t> {
         error::wrap_c_api(dnnl_primitive_attr_set_src_dyn_quant_params(get(), group_size),
                 "could not set src dynamic quantization parameters primitive attribute");
     }
+
+    void get_src_dyn_quant_params(uint64_t& group_size) const {
+        error::wrap_c_api(dnnl_primitive_attr_get_src_dyn_quant_params(get(), &group_size),
+                "could not get src dynamic quantization parameters primitive attribute");
+    }
 };
 
 /// @} dnnl_api_attributes
